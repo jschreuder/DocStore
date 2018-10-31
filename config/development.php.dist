@@ -6,8 +6,8 @@ return [
     'db.user' => '',
     'db.pass' => '',
 
-    // Document Types
-    'types' => [    ],
+    // Publication Types
+    'publication_types' => [],
 
     // Storage Engines
     'storage_engines' => [],

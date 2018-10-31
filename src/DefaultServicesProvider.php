@@ -6,7 +6,7 @@ use jschreuder\DocStore\Repository\DocumentRepository;
 use jschreuder\DocStore\Repository\PublicationRepository;
 use jschreuder\DocStore\StorageEngine\StorageEngineCollection;
 use jschreuder\DocStore\StorageEngine\StorageEngineInterface;
-use jschreuder\DocStore\Type\TypeCollection;
+use jschreuder\DocStore\PublicationType\PublicationTypeCollection;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Symfony\Component\Console\Exception\LogicException;
@@ -28,15 +28,19 @@ class DefaultServicesProvider implements ServiceProviderInterface
         };
 
         $container['repository.documents'] = function (Container $container) {
-            return new DocumentRepository($container['db'], $container['repository.publications']);
+            return new DocumentRepository(
+                $container['db'],
+                $container['repository.publications'],
+                $container['storage_engines']
+            );
         };
 
         $container['repository.publications'] = function (Container $container) {
-            return new PublicationRepository($container['db']);
+            return new PublicationRepository($container['db'], $container['publication_types']);
         };
 
-        $container['types'] = function (Container $container) {
-            return new TypeCollection(...$container['config']['types']);
+        $container['publication_types'] = function (Container $container) {
+            return new PublicationTypeCollection(...$container['config']['types']);
         };
 
         $container['storage_engines'] = function (Container $container) {
@@ -51,7 +55,7 @@ class DefaultServicesProvider implements ServiceProviderInterface
                 }
                 $storageEngines[$storageEngine->getName()] = $storageEngine;
             }
-            return new StorageEngineCollection($storageEngines);
+            return new StorageEngineCollection(...$storageEngines);
         };
     }
 }

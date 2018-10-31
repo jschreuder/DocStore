@@ -10,6 +10,9 @@ class Publication
     private $id;
 
     /** @var  string */
+    private $type;
+
+    /** @var  string */
     private $title;
 
     /** @var  string */
@@ -26,6 +29,7 @@ class Publication
 
     public function __construct(
         UuidInterface $id,
+        string $type,
         string $title,
         string $description,
         \DateTimeInterface $created,
@@ -33,6 +37,7 @@ class Publication
         ?\DateTimeInterface $removed
     ) {
         $this->id = $id;
+        $this->type = $type;
         $this->title = $title;
         $this->description = $description;
         $this->created = $created;
@@ -43,6 +48,11 @@ class Publication
     public function getId() : UuidInterface
     {
         return $this->id;
+    }
+
+    public function getType() : string
+    {
+        return $this->type;
     }
 
     public function getTitle() : string

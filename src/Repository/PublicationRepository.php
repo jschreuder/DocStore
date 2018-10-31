@@ -3,6 +3,7 @@
 namespace jschreuder\DocStore\Repository;
 
 use jschreuder\DocStore\Entity\Publication;
+use jschreuder\DocStore\PublicationType\PublicationTypeCollection;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -11,21 +12,30 @@ class PublicationRepository
     /** @var  \PDO */
     private $db;
 
-    public function __construct(\PDO $db)
+    /** @var  PublicationTypeCollection */
+    private $publicationTypes;
+
+    public function __construct(\PDO $db, PublicationTypeCollection $publicationTypes)
     {
         $this->db = $db;
+        $this->publicationTypes = $publicationTypes;
     }
 
     public function createPublication(Publication $publication)
     {
+        if (!$this->publicationTypes->isValidTypeName($publication->getType())) {
+            throw new \DomainException('Invalid publication type configured: ' . $publication->getType());
+        }
+
         $query = $this->db->prepare("
             INSERT INTO `publications`
-                (`publication_id`, `title`, `description`, `created`, `published`, `removed`)
+                (`publication_id`, `publication_type`, `title`, `description`, `created`, `published`, `removed`)
             VALUES
-                (:publication_id, :title, :description, :created, :published, :removed)
+                (:publication_id, :publication_type, :title, :description, :created, :published, :removed)
         ");
         $query->execute([
             'publication_id' => $publication->getId()->getBytes(),
+            'publication_type' => $publication->getType(),
             'title' => $publication->getTitle(),
             'description' => $publication->getDescription(),
             'created' => $publication->getCreated()->format('Y-m-d H:i:s'),
@@ -38,6 +48,7 @@ class PublicationRepository
     {
         return new Publication(
             Uuid::fromBytes($row['publication_id']),
+            $row['publication_type'],
             $row['title'],
             $row['description'],
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $row['created']),
@@ -50,7 +61,7 @@ class PublicationRepository
     public function readPublication(UuidInterface $publicationId) : Publication
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `publication_id` = :publication_id
         ");
@@ -66,7 +77,7 @@ class PublicationRepository
     public function readUnpublishedPublications($limit = 25, $offset = 0) : array
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `published` IS NULL AND `removed` IS NULL
             ORDER BY `created` DESC
@@ -88,7 +99,7 @@ class PublicationRepository
     public function readPublishedPublications($limit = 25, $offset = 0) : array
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `published` IS NOT NULL AND `removed` IS NULL
             ORDER BY `published` DESC
@@ -110,7 +121,7 @@ class PublicationRepository
     public function readRemovedPublications($limit = 25, $offset = 0) : array
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `removed` IS NOT NULL
             ORDER BY `removed` DESC

@@ -4,6 +4,7 @@ namespace jschreuder\DocStore\Repository;
 
 use jschreuder\DocStore\Entity\Document;
 use jschreuder\DocStore\Entity\Publication;
+use jschreuder\DocStore\StorageEngine\StorageEngineCollection;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -15,26 +16,36 @@ class DocumentRepository
     /** @var  PublicationRepository */
     private $publicationRepository;
 
-    public function __construct(\PDO $db, PublicationRepository $publicationRepository)
-    {
+    /** @var  StorageEngineCollection */
+    private $storageEngines;
+
+    public function __construct(
+        \PDO $db,
+        PublicationRepository $publicationRepository,
+        StorageEngineCollection $storageEngines
+    ) {
         $this->db = $db;
         $this->publicationRepository = $publicationRepository;
+        $this->storageEngines = $storageEngines;
     }
 
     public function createDocument(Document $document) : void
     {
+        if (!$this->storageEngines->isValidStorageEngineName($document->getStorageEngine())) {
+            throw new \DomainException('Invalid storage engine configured: ' . $document->getStorageEngine());
+        }
+
         $query = $this->db->prepare("
             INSERT INTO `documents`
-                (`document_id`, `publication_id`, `document_type`, `storage_engine`, `title`, `filename`, `filesize`, 
-                 `mime_type`, `created`, `updated`, `removed`)
+                (`document_id`, `publication_id`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
+                 `created`, `updated`, `removed`)
             VALUES
-                (:document_id, :publication_id, :document_type, :storage_engine, :title, :filename, :filesize, 
-                 :mime_type, :created, :updated, :removed)
+                (:document_id, :publication_id, :storage_engine, :title, :filename, :filesize, :mime_type, 
+                 :created, :updated, :removed)
         ");
         $query->execute([
             'document_id' => $document->getId()->getBytes(),
             'publication_id' => $document->getPublication()->getId()->getBytes(),
-            'document_type' => $document->getType(),
             'storage_engine' => $document->getStorageEngine(),
             'title' => $document->getTitle(),
             'filename' => $document->getFileName(),
@@ -51,7 +62,6 @@ class DocumentRepository
         return new Document(
             Uuid::fromBytes($row['document_id']),
             $publication,
-            $row['document_type'],
             $row['storage_engine'],
             $row['title'],
             $row['filename'],
@@ -67,7 +77,7 @@ class DocumentRepository
     public function readDocument(UuidInterface $documentId) : Document
     {
         $query = $this->db->prepare("
-            SELECT `document_id`, `document_type`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
+            SELECT `document_id`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
                 `created`, `updated`, `removed`
             FROM `documents`
             WHERE `document_id` = :document_id
@@ -88,7 +98,7 @@ class DocumentRepository
     public function readPublicationDocuments(Publication $publication) : array
     {
         $query = $this->db->prepare("
-            SELECT `document_id`, `document_type`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
+            SELECT `document_id`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
                 `created`, `updated`, `removed`
             FROM `documents`
             WHERE `publication_id` = :publication_id

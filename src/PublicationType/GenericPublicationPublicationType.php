@@ -1,8 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace jschreuder\DocStore\Type;
+namespace jschreuder\DocStore\PublicationType;
 
-class GenericType implements TypeInterface
+class GenericPublicationPublicationType implements PublicationTypeInterface
 {
     /** @var  string */
     private $name;

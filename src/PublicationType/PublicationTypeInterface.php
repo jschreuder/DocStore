@@ -1,8 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace jschreuder\DocStore\Type;
+namespace jschreuder\DocStore\PublicationType;
 
-interface TypeInterface
+interface PublicationTypeInterface
 {
     /** Returns the string representation for this type */
     public function getName() : string;

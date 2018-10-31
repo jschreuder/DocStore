@@ -1,13 +1,13 @@
 <?php declare(strict_types = 1);
 
-namespace jschreuder\DocStore\Type;
+namespace jschreuder\DocStore\PublicationType;
 
-class TypeCollection
+class PublicationTypeCollection
 {
-    /** @var  TypeInterface[] */
+    /** @var  PublicationTypeInterface[] */
     private $types = [];
 
-    public function __construct(TypeInterface ...$types)
+    public function __construct(PublicationTypeInterface ...$types)
     {
         foreach ($types as $type) {
             $this->addType($type);
@@ -15,7 +15,7 @@ class TypeCollection
     }
 
     /** @throws  \DomainException */
-    public function addType(TypeInterface $type) : void
+    public function addType(PublicationTypeInterface $type) : void
     {
         if ($this->isValidTypeName($type->getName())) {
             throw new \DomainException('Type already defined, cannot add a second time: ' . $type->getName());
@@ -29,7 +29,7 @@ class TypeCollection
     }
 
     /** @throws  \OutOfBoundsException */
-    public function getTypeFromName(string $typeName) : TypeInterface
+    public function getTypeFromName(string $typeName) : PublicationTypeInterface
     {
         if (!$this->isValidTypeName($typeName)) {
             throw new \OutOfBoundsException('No such type registered: ' . $typeName);

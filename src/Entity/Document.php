@@ -13,9 +13,6 @@ class Document
     private $publication;
 
     /** @var  string */
-    private $type;
-
-    /** @var  string */
     private $storageEngine;
 
     /** @var  string */
@@ -43,7 +40,6 @@ class Document
     public function __construct(
         UuidInterface $id,
         Publication $publication,
-        string $type,
         string $storageEngine,
         string $title,
         int $fileName,
@@ -59,7 +55,6 @@ class Document
 
         $this->id = $id;
         $this->publication = $publication;
-        $this->type = $type;
         $this->storageEngine = $storageEngine;
         $this->title = $title;
         $this->fileName = $fileName;
@@ -78,11 +73,6 @@ class Document
     public function getPublication() : Publication
     {
         return $this->publication;
-    }
-
-    public function getType() : string
-    {
-        return $this->type;
     }
 
     public function getStorageEngine() : string
