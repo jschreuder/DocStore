@@ -65,7 +65,7 @@ class FlysystemStorageEngine implements StorageEngineInterface
     public function update(Document $document, $stream) : void
     {
         $this->flysystem->updateStream($this->documentToPath($document), $stream);
-        $document->setUpdated($this->flysystem->getSize($this->documentToPath($document)));
+        $document->markAsUpdated($this->flysystem->getSize($this->documentToPath($document)));
         $this->documentRepository->updateDocument($document);
     }
 
@@ -73,7 +73,7 @@ class FlysystemStorageEngine implements StorageEngineInterface
     public function delete(Document $document) : void
     {
         $this->flysystem->delete($this->documentToPath($document));
-        $document->setRemoved();
+        $document->markAsRemoved();
         $this->documentRepository->deleteDocument($document);
     }
 }

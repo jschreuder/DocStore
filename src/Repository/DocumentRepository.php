@@ -3,6 +3,7 @@
 namespace jschreuder\DocStore\Repository;
 
 use jschreuder\DocStore\Entity\Document;
+use jschreuder\DocStore\Entity\Publication;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -11,18 +12,28 @@ class DocumentRepository
     /** @var  \PDO */
     private $db;
 
+    /** @var  PublicationRepository */
+    private $publicationRepository;
+
+    public function __construct(\PDO $db, PublicationRepository $publicationRepository)
+    {
+        $this->db = $db;
+        $this->publicationRepository = $publicationRepository;
+    }
+
     public function createDocument(Document $document) : void
     {
         $query = $this->db->prepare("
             INSERT INTO `documents`
-                (`document_id`, `document_type`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
-                 `created`, `updated`, `removed`)
+                (`document_id`, `publication_id`, `document_type`, `storage_engine`, `title`, `filename`, `filesize`, 
+                 `mime_type`, `created`, `updated`, `removed`)
             VALUES
-                (:document_id, :document_type, :storage_engine, :title, :filename, :filesize, :mime_type, :created, 
-                 :updated, :removed)
+                (:document_id, :publication_id, :document_type, :storage_engine, :title, :filename, :filesize, 
+                 :mime_type, :created, :updated, :removed)
         ");
         $query->execute([
             'document_id' => $document->getId()->getBytes(),
+            'publication_id' => $document->getPublication()->getId()->getBytes(),
             'document_type' => $document->getType(),
             'storage_engine' => $document->getStorageEngine(),
             'title' => $document->getTitle(),
@@ -35,10 +46,11 @@ class DocumentRepository
         ]);
     }
 
-    private function documentFromRow(array $row) : Document
+    private function documentFromRow(array $row, Publication $publication) : Document
     {
         return new Document(
             Uuid::fromBytes($row['document_id']),
+            $publication,
             $row['document_type'],
             $row['storage_engine'],
             $row['title'],
@@ -65,13 +77,36 @@ class DocumentRepository
             throw new \OutOfBoundsException('No document found with ID: ' . $documentId->toString());
         }
 
-        return $this->documentFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        $row = $query->fetch(\PDO::FETCH_ASSOC);
+        return $this->documentFromRow(
+            $row,
+            $this->publicationRepository->readPublication(Uuid::fromBytes($row['publication_id']))
+        );
     }
 
+    /** @return  Document[] */
+    public function readPublicationDocuments(Publication $publication) : array
+    {
+        $query = $this->db->prepare("
+            SELECT `document_id`, `document_type`, `storage_engine`, `title`, `filename`, `filesize`, `mime_type`, 
+                `created`, `updated`, `removed`
+            FROM `documents`
+            WHERE `publication_id` = :publication_id
+        ");
+        $query->execute(['publication_id' => $publication->getId()->getBytes()]);
+
+        $documents = [];
+        while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
+            $documents[] = $this->documentFromRow($row, $publication);
+        }
+        return $documents;
+    }
+
+    /** @throws  \DomainException */
     public function updateDocument(Document $document) : void
     {
         if (!$document->isUpdated()) {
-            throw new \LogicException('Cannot update a document which was not updated');
+            throw new \DomainException('Cannot update a document which was not updated');
         }
 
         $query = $this->db->prepare("
@@ -86,10 +121,11 @@ class DocumentRepository
         ]);
     }
 
+    /** @throws  \DomainException */
     public function deleteDocument(Document $document) : void
     {
         if (!$document->isRemoved()) {
-            throw new \LogicException('Cannot delete a document which was not marked as removed');
+            throw new \DomainException('Cannot delete a document which was not marked as removed');
         }
 
         $query = $this->db->prepare("

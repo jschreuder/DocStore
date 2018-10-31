@@ -14,11 +14,11 @@ class StorageEngineCollection
         }
     }
 
-    /** @throws  \LogicException when a storage engine name is used twice */
+    /** @throws  \DomainException */
     public function addStorageEngine(StorageEngineInterface $storageEngine) : void
     {
         if ($this->isValidStorageEngineName($storageEngine->getName())) {
-            throw new \LogicException(
+            throw new \DomainException(
                 'Storage Engine already defined, cannot add a second time: ' . $storageEngine->getName()
             );
         }
@@ -30,7 +30,7 @@ class StorageEngineCollection
         return isset($this->storageEngines[$storageEngineName]);
     }
 
-    /** @throws  \OutOfBoundsException when storage engine is not registered */
+    /** @throws  \OutOfBoundsException */
     public function getStorageEngineFromName(string $storageEngineName) : StorageEngineInterface
     {
         if (!$this->isValidStorageEngineName($storageEngineName)) {

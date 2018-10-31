@@ -14,11 +14,11 @@ class TypeCollection
         }
     }
 
-    /** @throws  \LogicException when a type name is used twice */
+    /** @throws  \DomainException */
     public function addType(TypeInterface $type) : void
     {
         if ($this->isValidTypeName($type->getName())) {
-            throw new \LogicException('Type already defined, cannot add a second time: ' . $type->getName());
+            throw new \DomainException('Type already defined, cannot add a second time: ' . $type->getName());
         }
         $this->types[$type->getName()] = $type;
     }
@@ -28,7 +28,7 @@ class TypeCollection
         return isset($this->types[$typeName]);
     }
 
-    /** @throws  \OutOfBoundsException when type is not registered */
+    /** @throws  \OutOfBoundsException */
     public function getTypeFromName(string $typeName) : TypeInterface
     {
         if (!$this->isValidTypeName($typeName)) {

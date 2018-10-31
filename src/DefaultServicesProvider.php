@@ -2,6 +2,8 @@
 
 namespace jschreuder\DocStore;
 
+use jschreuder\DocStore\Repository\DocumentRepository;
+use jschreuder\DocStore\Repository\PublicationRepository;
 use jschreuder\DocStore\StorageEngine\StorageEngineCollection;
 use jschreuder\DocStore\StorageEngine\StorageEngineInterface;
 use jschreuder\DocStore\Type\TypeCollection;
@@ -23,6 +25,14 @@ class DefaultServicesProvider implements ServiceProviderInterface
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 ]
             );
+        };
+
+        $container['repository.documents'] = function (Container $container) {
+            return new DocumentRepository($container['db'], $container['repository.publications']);
+        };
+
+        $container['repository.publications'] = function (Container $container) {
+            return new PublicationRepository($container['db']);
         };
 
         $container['types'] = function (Container $container) {

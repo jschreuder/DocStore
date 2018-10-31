@@ -9,6 +9,9 @@ class Document
     /** @var  UuidInterface */
     private $id;
 
+    /** @var  Publication */
+    private $publication;
+
     /** @var  string */
     private $type;
 
@@ -36,8 +39,10 @@ class Document
     /** @var  ?\DateTimeInterface */
     private $removed;
 
+    /** @throws  \DomainException */
     public function __construct(
         UuidInterface $id,
+        Publication $publication,
         string $type,
         string $storageEngine,
         string $title,
@@ -48,7 +53,12 @@ class Document
         ?\DateTimeInterface $updated,
         ?\DateTimeInterface $removed
     ) {
+        if ($publication->isPublished()) {
+            throw new \DomainException('Cannot create document for already published Publication');
+        }
+
         $this->id = $id;
+        $this->publication = $publication;
         $this->type = $type;
         $this->storageEngine = $storageEngine;
         $this->title = $title;
@@ -63,6 +73,11 @@ class Document
     public function getId() : UuidInterface
     {
         return $this->id;
+    }
+
+    public function getPublication() : Publication
+    {
+        return $this->publication;
     }
 
     public function getType() : string
@@ -110,11 +125,11 @@ class Document
         return $this->updated;
     }
 
-    /** @throws  \LogicException */
-    public function setUpdated(int $fileSize) : void
+    /** @throws  \DomainException */
+    public function markAsUpdated(int $fileSize) : void
     {
         if ($this->isRemoved()) {
-            throw new \LogicException('Cannot update a removed document');
+            throw new \DomainException('Cannot update a removed document');
         }
         $this->updated = new \DateTimeImmutable();
         $this->fileSize = $fileSize;
@@ -130,11 +145,11 @@ class Document
         return $this->removed;
     }
 
-    /** @throws  \LogicException */
-    public function setRemoved() : void
+    /** @throws  \DomainException */
+    public function markAsRemoved() : void
     {
         if ($this->isRemoved()) {
-            throw new \LogicException('Cannot remove an already removed document');
+            throw new \DomainException('Cannot remove an already removed document');
         }
         $this->removed = new \DateTimeImmutable();
         $this->fileSize = 0;

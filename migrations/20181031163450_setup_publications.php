@@ -11,17 +11,19 @@ class SetupPublications extends AbstractMigration
                 `publication_id` BINARY(16) NOT NULL,
                 `title` VARCHAR(255) NOT NULL,
                 `description` TEXT NOT NULL,
+                `created` DATETIME NOT NULL,
                 `published` DATETIME NULL,
                 `removed` DATETIME NULL,
                 PRIMARY KEY (`publication_id`),
-                INDEX `document_published_IDX` (`published` ASC)
+                INDEX `publication_created_IDX` (`created` ASC),
+                INDEX `publication_published_IDX` (`published` ASC)
             ) ENGINE = InnoDB
         ");
 
         $this->execute("
             ALTER TABLE `documents`
                 ADD COLUMN `publication_id` BINARY(16) NOT NULL
-                    AFTER `removed`,
+                    AFTER `document_id`,
                 ADD INDEX `document_publication_id_IDX` (`publication_id`),
                 ADD CONSTRAINT `fk_documents_publications`
                     FOREIGN KEY (`publication_id`)
