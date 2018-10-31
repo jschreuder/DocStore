@@ -2,4 +2,5 @@
 /bin/
 /config/development.php
 /config/env.php
+/data/
 /vendor/

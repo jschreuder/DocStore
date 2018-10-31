@@ -5,4 +5,10 @@ return [
     'db.dbname' => '',
     'db.user' => '',
     'db.pass' => '',
+
+    // Document Types
+    'types' => [    ],
+
+    // Storage Engines
+    'storage_engines' => [],
 ];
