@@ -15,7 +15,8 @@
         "ext-mbstring": "*",
         "robmorgan/phinx": "^0.10.6",
         "pimple/pimple": "^3.2",
-        "ramsey/uuid": "^3.8"
+        "ramsey/uuid": "^3.8",
+        "league/flysystem": "^1.0"
     },
     "autoload": {
         "psr-4": {

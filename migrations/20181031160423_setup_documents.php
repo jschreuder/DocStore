@@ -31,6 +31,7 @@ class SetupDocuments extends AbstractMigration
                 `created` DATETIME NOT NULL,
                 `updated` DATETIME NULL,
                 `removed` DATETIME NULL,
+                `filesize` INTEGER NOT NULL,
                 PRIMARY KEY (`document_id`),
                 INDEX `document_document_type_IDX` (`document_type` ASC),
                 INDEX `document_storage_engine_IDX` (`storage_engine` ASC),
