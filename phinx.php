@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-$env = require __DIR__ . '/config/env.php';
+$env = require __DIR__ . '/config/env.php.dist';
 $db = require __DIR__ . '/config/' . $env . '.php';
 
 preg_match(

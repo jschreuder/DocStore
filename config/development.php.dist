@@ -2,7 +2,7 @@
 return [
     // Database settings
     'db.dsn' => 'mysql:host=localhost;charset=utf8',
-    'db.dbname' => 'spotdesk_dev',
+    'db.dbname' => 'docstore_dev',
     'db.user' => 'root',
-    'db.pass' => '',
+    'db.pass' => 'root',
 ];
