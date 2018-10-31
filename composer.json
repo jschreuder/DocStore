@@ -1,0 +1,28 @@
+{
+    "name": "jschreuder/doc-store",
+    "description": "Document storage and retrieval",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jelmer Schreuder",
+            "email": "github@jelmerschreuder.nl"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.1",
+        "ext-mbstring": "*",
+        "robmorgan/phinx": "^0.10.6",
+        "pimple/pimple": "^3.2",
+        "ramsey/uuid": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "jschreuder\\SpotDesk\\": "src"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}
