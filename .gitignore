@@ -1,3 +1,5 @@
 /.idea/
 /bin/
+/config/development.php
+/config/env.php
 /vendor/

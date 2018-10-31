@@ -2,7 +2,7 @@
 return [
     // Database settings
     'db.dsn' => 'mysql:host=localhost;charset=utf8',
-    'db.dbname' => 'docstore_dev',
-    'db.user' => 'root',
-    'db.pass' => 'root',
+    'db.dbname' => '',
+    'db.user' => '',
+    'db.pass' => '',
 ];
