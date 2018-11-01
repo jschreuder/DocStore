@@ -3,4 +3,5 @@
 /config/development.php
 /config/env.php
 /data/
+/logs/*.log
 /vendor/

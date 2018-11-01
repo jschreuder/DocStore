@@ -11,4 +11,14 @@ return [
 
     // Storage Engines
     'storage_engines' => [],
+
+    // Application logging
+    'logger' => function () {
+        $logger = new \Monolog\Logger('middle-skeleton');
+        $logger->pushHandler((new \Monolog\Handler\StreamHandler(
+            __DIR__ . '/../logs/' . (php_sapi_name() === 'cli' ? 'cli' : 'web') . '-' . date('Ymd') . '.log',
+            \Monolog\Logger::NOTICE
+        ))->setFormatter(new \Monolog\Formatter\LineFormatter()));
+        return $logger;
+    },
 ];

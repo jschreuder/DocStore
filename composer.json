@@ -12,12 +12,15 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.1",
+        "ext-json": "*",
         "ext-mbstring": "*",
-        "ext-pdo": "*",
+        "ext-PDO": "*",
         "robmorgan/phinx": "^0.10.6",
         "pimple/pimple": "^3.2",
         "ramsey/uuid": "^3.8",
-        "league/flysystem": "^1.0"
+        "league/flysystem": "^1.0",
+        "monolog/monolog": "^1.23",
+        "symfony/console": "^4.1"
     },
     "autoload": {
         "psr-4": {
