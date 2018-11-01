@@ -74,19 +74,16 @@ class PublicationRepository
     }
 
     /** @return  Publication[] */
-    public function readUnpublishedPublications($limit = 25, $offset = 0) : array
+    public function readUnpublishedPublications(int $limit = 25, int $offset = 0) : array
     {
         $query = $this->db->prepare("
             SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `published` IS NULL AND `removed` IS NULL
             ORDER BY `created` DESC
-            LIMIT :limit OFFSET :offset
-        ");
-        $query->execute([
-            'limit' => $limit,
-            'offset' => $offset,
-        ]);
+            LIMIT ".strval($limit)." OFFSET ".strval($offset)
+        );
+        $query->execute();
 
         $publications = [];
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
@@ -96,19 +93,16 @@ class PublicationRepository
     }
 
     /** @return  Publication[] */
-    public function readPublishedPublications($limit = 25, $offset = 0) : array
+    public function readPublishedPublications(int $limit = 25, int $offset = 0) : array
     {
         $query = $this->db->prepare("
             SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `published` IS NOT NULL AND `removed` IS NULL
             ORDER BY `published` DESC
-            LIMIT :limit OFFSET :offset
-        ");
-        $query->execute([
-            'limit' => $limit,
-            'offset' => $offset,
-        ]);
+            LIMIT ".strval($limit)." OFFSET ".strval($offset)
+        );
+        $query->execute();
 
         $publications = [];
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
@@ -118,19 +112,16 @@ class PublicationRepository
     }
 
     /** @return  Publication[] */
-    public function readRemovedPublications($limit = 25, $offset = 0) : array
+    public function readRemovedPublications(int $limit = 25, int $offset = 0) : array
     {
         $query = $this->db->prepare("
             SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
             FROM `publications`
             WHERE `removed` IS NOT NULL
             ORDER BY `removed` DESC
-            LIMIT :limit OFFSET :offset
-        ");
-        $query->execute([
-            'limit' => $limit,
-            'offset' => $offset,
-        ]);
+            LIMIT ".strval($limit)." OFFSET ".strval($offset)
+        );
+        $query->execute();
 
         $publications = [];
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {

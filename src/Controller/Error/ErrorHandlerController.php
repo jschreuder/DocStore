@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace jschreuder\DocStore\Controller;
+namespace jschreuder\DocStore\Controller\Error;
 
 use jschreuder\Middle\Controller\ControllerInterface;
 use Psr\Http\Message\ResponseInterface;

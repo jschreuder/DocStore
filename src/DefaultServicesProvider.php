@@ -2,8 +2,8 @@
 
 namespace jschreuder\DocStore;
 
-use jschreuder\DocStore\Controller\ErrorHandlerController;
-use jschreuder\DocStore\Controller\NotFoundHandlerController;
+use jschreuder\DocStore\Controller\Error\ErrorHandlerController;
+use jschreuder\DocStore\Controller\Error\NotFoundHandlerController;
 use jschreuder\DocStore\Repository\DocumentRepository;
 use jschreuder\DocStore\Repository\PublicationRepository;
 use jschreuder\DocStore\StorageEngine\StorageEngineCollection;
@@ -39,11 +39,13 @@ class DefaultServicesProvider implements ServiceProviderInterface
             );
         };
 
-        $container['app.router'] = function () use ($container) {
-            return new SymfonyRouter($container['site.url']);
+        $container['logger'] = $container['config']['logger'];
+
+        $container['app.router'] = function (Container $container) {
+            return new SymfonyRouter($container['config']['site.url']);
         };
 
-        $container['app.url_generator'] = function () use ($container) {
+        $container['app.url_generator'] = function (Container $container) {
             /** @var  RouterInterface $router */
             $router = $container['app.router'];
             return $router->getGenerator();
@@ -53,15 +55,16 @@ class DefaultServicesProvider implements ServiceProviderInterface
             return new NotFoundHandlerController();
         };
 
-        $container['app.error_handlers.500'] = function () use ($container) {
+        $container['app.error_handlers.500'] = function (Container $container) {
             return new ErrorHandlerController($container['logger']);
         };
 
         $container['db'] = function (Container $container) {
+            $config = $container['config'];
             return new \PDO(
-                $container['db.dsn'] . ';dbname=' . $container['db.dbname'],
-                $container['db.user'],
-                $container['db.pass'],
+                $config['db.dsn'] . ';dbname=' . $config['db.dbname'],
+                $config['db.user'],
+                $config['db.pass'],
                 [
                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -82,7 +85,7 @@ class DefaultServicesProvider implements ServiceProviderInterface
         };
 
         $container['publication_types'] = function (Container $container) {
-            return new PublicationTypeCollection(...$container['config']['types']);
+            return new PublicationTypeCollection(...$container['config']['publication_types']);
         };
 
         $container['storage_engines'] = function (Container $container) {
