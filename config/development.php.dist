@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 return [
+    'site.url' => 'http://localhost',
+
     // Database settings
     'db.dsn' => 'mysql:host=localhost;charset=utf8',
     'db.dbname' => '',

@@ -2,11 +2,20 @@
 
 namespace jschreuder\DocStore;
 
+use jschreuder\DocStore\Controller\ErrorHandlerController;
+use jschreuder\DocStore\Controller\NotFoundHandlerController;
 use jschreuder\DocStore\Repository\DocumentRepository;
 use jschreuder\DocStore\Repository\PublicationRepository;
 use jschreuder\DocStore\StorageEngine\StorageEngineCollection;
 use jschreuder\DocStore\StorageEngine\StorageEngineInterface;
 use jschreuder\DocStore\PublicationType\PublicationTypeCollection;
+use jschreuder\Middle\ApplicationStack;
+use jschreuder\Middle\Controller\ControllerRunner;
+use jschreuder\Middle\Router\RouterInterface;
+use jschreuder\Middle\Router\SymfonyRouter;
+use jschreuder\Middle\ServerMiddleware\ErrorHandlerMiddleware;
+use jschreuder\Middle\ServerMiddleware\JsonRequestParserMiddleware;
+use jschreuder\Middle\ServerMiddleware\RoutingMiddleware;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Symfony\Component\Console\Exception\LogicException;
@@ -15,6 +24,39 @@ class DefaultServicesProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
+        $container['app'] = function (Container $container) {
+            return new ApplicationStack(
+                new ControllerRunner(),
+                new JsonRequestParserMiddleware(),
+                new RoutingMiddleware(
+                    $container['app.router'],
+                    $container['app.error_handlers.404']
+                ),
+                new ErrorHandlerMiddleware(
+                    $container['logger'],
+                    $container['app.error_handlers.500']
+                )
+            );
+        };
+
+        $container['app.router'] = function () use ($container) {
+            return new SymfonyRouter($container['site.url']);
+        };
+
+        $container['app.url_generator'] = function () use ($container) {
+            /** @var  RouterInterface $router */
+            $router = $container['app.router'];
+            return $router->getGenerator();
+        };
+
+        $container['app.error_handlers.404'] = function () {
+            return new NotFoundHandlerController();
+        };
+
+        $container['app.error_handlers.500'] = function () use ($container) {
+            return new ErrorHandlerController($container['logger']);
+        };
+
         $container['db'] = function (Container $container) {
             return new \PDO(
                 $container['db.dsn'] . ';dbname=' . $container['db.dbname'],
