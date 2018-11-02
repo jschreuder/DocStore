@@ -23,6 +23,12 @@ class PublicationTypeCollection
         $this->types[$type->getName()] = $type;
     }
 
+    /** @return  string[] */
+    public function getTypeNames() : array
+    {
+        return array_keys($this->types);
+    }
+
     public function isValidTypeName(string $typeName) : bool
     {
         return isset($this->types[$typeName]);

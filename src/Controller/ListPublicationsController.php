@@ -42,7 +42,7 @@ class ListPublicationsController implements ControllerInterface
         $publicationData = [];
         foreach ($publications as $publication) {
             $publicationData[] = [
-                'publication_id' => $publication->getId()->getBytes(),
+                'publication_id' => $publication->getId()->toString(),
                 'publication_type' => $publication->getType(),
                 'title' => $publication->getTitle(),
                 'description' => $publication->getDescription(),
@@ -52,9 +52,6 @@ class ListPublicationsController implements ControllerInterface
             ];
         }
 
-        return new JsonResponse([
-            'type' => 'publication',
-            'data' => $publicationData,
-        ]);
+        return new JsonResponse($publicationData);
     }
 }

@@ -21,6 +21,7 @@ class PublicationRepository
         $this->publicationTypes = $publicationTypes;
     }
 
+    /** @throws  \DomainException */
     public function createPublication(Publication $publication)
     {
         if (!$this->publicationTypes->isValidTypeName($publication->getType())) {
@@ -61,7 +62,7 @@ class PublicationRepository
     public function readPublication(UuidInterface $publicationId) : Publication
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `created`, `published`, `removed`
             FROM `publications`
             WHERE `publication_id` = :publication_id
         ");
@@ -77,7 +78,7 @@ class PublicationRepository
     public function readUnpublishedPublications(int $limit = 25, int $offset = 0) : array
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `created`, `published`, `removed`
             FROM `publications`
             WHERE `published` IS NULL AND `removed` IS NULL
             ORDER BY `created` DESC
@@ -96,7 +97,7 @@ class PublicationRepository
     public function readPublishedPublications(int $limit = 25, int $offset = 0) : array
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `created`, `published`, `removed`
             FROM `publications`
             WHERE `published` IS NOT NULL AND `removed` IS NULL
             ORDER BY `published` DESC
@@ -115,7 +116,7 @@ class PublicationRepository
     public function readRemovedPublications(int $limit = 25, int $offset = 0) : array
     {
         $query = $this->db->prepare("
-            SELECT `publication_id`, `publication_type`, `title`, `description`, `published`, `removed`
+            SELECT `publication_id`, `publication_type`, `title`, `description`, `created`, `published`, `removed`
             FROM `publications`
             WHERE `removed` IS NOT NULL
             ORDER BY `removed` DESC

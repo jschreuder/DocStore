@@ -24,7 +24,9 @@
         "jschreuder/middle": "^1.0",
         "zendframework/zend-diactoros": "^2.0",
         "symfony/routing": "^4.1",
-        "zendframework/zend-httphandlerrunner": "^1.0"
+        "zendframework/zend-httphandlerrunner": "^1.0",
+        "particle/filter": "^1.5",
+        "particle/validator": "^2.3"
     },
     "autoload": {
         "psr-4": {

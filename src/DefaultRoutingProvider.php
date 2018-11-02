@@ -2,6 +2,7 @@
 
 namespace jschreuder\DocStore;
 
+use jschreuder\DocStore\Controller\CreatePublicationController;
 use jschreuder\DocStore\Controller\ListPublicationsController;
 use jschreuder\Middle\Controller\CallableController;
 use jschreuder\Middle\Router\RouterInterface;
@@ -29,6 +30,12 @@ class DefaultRoutingProvider implements RoutingProviderInterface
             });
         });
 
+        $router->post('publication.create', '/publications', function () {
+            return new CreatePublicationController(
+                $this->container['repository.publications'],
+                $this->container['publication_types']
+            );
+        });
         $router->get('publication.list', '/publications', function () {
             return new ListPublicationsController($this->container['repository.publications']);
         });

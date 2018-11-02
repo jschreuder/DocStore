@@ -33,8 +33,8 @@ class Publication
         string $title,
         string $description,
         \DateTimeInterface $created,
-        ?\DateTimeInterface $published,
-        ?\DateTimeInterface $removed
+        ?\DateTimeInterface $published = null,
+        ?\DateTimeInterface $removed = null
     ) {
         $this->id = $id;
         $this->type = $type;

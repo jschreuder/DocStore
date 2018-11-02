@@ -11,14 +11,20 @@ use jschreuder\DocStore\StorageEngine\StorageEngineInterface;
 use jschreuder\DocStore\PublicationType\PublicationTypeCollection;
 use jschreuder\Middle\ApplicationStack;
 use jschreuder\Middle\Controller\ControllerRunner;
+use jschreuder\Middle\Exception\ValidationFailedException;
 use jschreuder\Middle\Router\RouterInterface;
 use jschreuder\Middle\Router\SymfonyRouter;
 use jschreuder\Middle\ServerMiddleware\ErrorHandlerMiddleware;
 use jschreuder\Middle\ServerMiddleware\JsonRequestParserMiddleware;
+use jschreuder\Middle\ServerMiddleware\RequestFilterMiddleware;
+use jschreuder\Middle\ServerMiddleware\RequestValidatorMiddleware;
 use jschreuder\Middle\ServerMiddleware\RoutingMiddleware;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Console\Exception\LogicException;
+use Zend\Diactoros\Response\JsonResponse;
 
 class DefaultServicesProvider implements ServiceProviderInterface
 {
@@ -27,6 +33,8 @@ class DefaultServicesProvider implements ServiceProviderInterface
         $container['app'] = function (Container $container) {
             return new ApplicationStack(
                 new ControllerRunner(),
+                new RequestValidatorMiddleware($container['requestValidator.errorHandler']),
+                new RequestFilterMiddleware(),
                 new JsonRequestParserMiddleware(),
                 new RoutingMiddleware(
                     $container['app.router'],
@@ -58,6 +66,17 @@ class DefaultServicesProvider implements ServiceProviderInterface
         $container['app.error_handlers.500'] = function (Container $container) {
             return new ErrorHandlerController($container['logger']);
         };
+
+        $container['requestValidator.errorHandler'] = $container->protect(function (
+            ServerRequestInterface $request,
+            ValidationFailedException $validationFailedException
+        ) : ResponseInterface {
+            return new JsonResponse([
+                'validation_errors' => array_map(function (array $errors) {
+                    return array_keys($errors);
+                }, $validationFailedException->getValidationErrors()),
+            ], 400);
+        });
 
         $container['db'] = function (Container $container) {
             $config = $container['config'];
